@@ -86,9 +86,9 @@ function! vimwiki#markdown_base#follow_link(split, ...) "{{{ Parse link at curso
     elseif a:split ==# "vsplit"
       let cmd = ":vsplit "
     elseif a:split ==# "tabnew"
-      let cmd = ":tabnew "
+      let cmd = ":tab drop "
     else
-      let cmd = ":e "
+      let cmd = ":drop "
     endif
 
     " try WikiLink
