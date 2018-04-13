@@ -148,4 +148,6 @@ Then launch Vim, run `:Helptags` and then `:help vimwiki` to verify it was insta
 
 ----
 \* Screenshots made with the [solarized colorscheme](https://github.com/altercation/vim-colors-solarized)
-and [lightline](https://github.com/itchyny/lightline.vim)
+and [lightline](https://github.com/itchyny/lightline.vim) 
+
+XXX
