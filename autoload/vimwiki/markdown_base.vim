@@ -106,7 +106,7 @@ function! vimwiki#markdown_base#follow_link(split, ...) "{{{ Parse link at curso
     endif
 
     if lnk != ""
-      if !VimwikiLinkHandler(lnk)
+      if !VimwikiLinkHandler(cmd, lnk)
         if !vimwiki#markdown_base#open_reflink(lnk)
           " remove the extension from the filename if exists
           let lnk = substitute(lnk, VimwikiGet('ext').'$', '', '')

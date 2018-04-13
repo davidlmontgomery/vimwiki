@@ -300,7 +300,7 @@ endfunction " }}}
 " CALLBACK functions "{{{
 " User can redefine it.
 if !exists("*VimwikiLinkHandler") "{{{
-  function VimwikiLinkHandler(url)
+  function VimwikiLinkHandler(cmd, url)
     return 0
   endfunction
 endif "}}}

@@ -1250,7 +1250,7 @@ function! vimwiki#base#follow_link(split, ...) "{{{ Parse link at cursor and pas
     endif
 
     if lnk != ""
-      if !VimwikiLinkHandler(lnk)
+      if !VimwikiLinkHandler(cmd, lnk)
         call vimwiki#base#open_link(cmd, lnk)
       endif
       return
