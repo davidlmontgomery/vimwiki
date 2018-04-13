@@ -693,6 +693,9 @@ function! s:get_rate(item) "{{{
     return -1
   endif
   let state = a:item.cb
+  if state == g:vimwiki_wont_do_cb
+    return 100
+  endif
   return index(g:vimwiki_listsyms_list, state) * 25
 endfunction "}}}
 
@@ -1296,7 +1299,8 @@ endfunction "}}}
 function! s:cr_on_empty_list_item(lnum, behavior) "{{{
   if a:behavior == 1
     "just make a new list item
-    normal! gi
+    normal! gi
+
     call s:clone_marker_from_to(a:lnum, a:lnum+1)
     startinsert!
     return
@@ -1352,7 +1356,8 @@ endfunction "}}}
 function! s:cr_on_empty_line(lnum, behavior) "{{{
   "inserting and deleting the x is necessary
   "because otherwise the indent is lost
-  normal! gix
+  normal! gi
+x
   if a:behavior == 2 || a:behavior == 3
     call s:create_marker(a:lnum+1)
   endif
@@ -1361,7 +1366,8 @@ endfunction "}}}
 function! s:cr_on_list_item(lnum, insert_new_marker, not_at_eol) "{{{
   if a:insert_new_marker
     "the ultimate feature of this script: make new marker on <CR>
-    normal! gi
+    normal! gi
+
     call s:clone_marker_from_to(a:lnum, a:lnum+1)
     "tiny sweet extra feature: indent next line if current line ends with :
     if !a:not_at_eol && getline(a:lnum) =~# ':$'
@@ -1370,7 +1376,8 @@ function! s:cr_on_list_item(lnum, insert_new_marker, not_at_eol) "{{{
   else
     " || (cur_item.lnum < s:get_last_line_of_item(cur_item))
     "indent this line so that it becomes the continuation of the line above
-    normal! gi
+    normal! gi
+
     let prev_line = s:get_corresponding_item(s:get_prev_line(a:lnum+1))
     call s:indent_multiline(prev_line, a:lnum+1)
   endif
@@ -1500,6 +1507,9 @@ function! vimwiki#lst#setup_marker_infos() "{{{
 
   "the user can set the listsyms as string, but vimwiki needs a list
   let g:vimwiki_listsyms_list = split(g:vimwiki_listsyms, '\zs')
+
+  "add checkbox value for "won't-do" items
+  let g:vimwiki_wont_do_cb = '-'
 endfunction "}}}
 
 function! vimwiki#lst#TO_list_item(inner, visual) "{{{
