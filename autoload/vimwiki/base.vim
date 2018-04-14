@@ -1211,6 +1211,34 @@ function! vimwiki#base#find_prev_link() "{{{
   call vimwiki#base#search_word(g:vimwiki_rxAnyLink, 'b')
 endfunction " }}}
 
+" vimwiki#base#open_named_link
+function! vimwiki#base#open_named_link(cmd, link) "{{{
+  " Open named interwiki files via the 'wn.<name>:' scheme.
+  " For example: [[wn.spanish:cognates]].
+  let lnk = a:link
+  let wnscheme = '^wn\.\([a-zA-Z0-9]\+\):\(.*\)'
+  let wnmatch = matchlist(lnk, wnscheme)
+  if len(wnmatch) >= 2 && wnmatch[1] != '' && wnmatch[2] != ''
+    let wname = wnmatch[1]
+    let idx = 0
+    while idx < len(g:vimwiki_list)
+      let wiki = g:vimwiki_list[idx]
+      if has_key(wiki, 'name')
+        if wiki.name == wname
+          let lnk = 'wiki' . idx . ':' . wnmatch[2]
+          let lnk = substitute(lnk, VimwikiGet('ext', idx).'$', '', '')
+          call vimwiki#base#open_link(a:cmd, lnk)
+          return 1
+        endif
+      endif
+      let idx += 1
+    endwhile
+    echom 'Vimwiki Error: No wiki found with name "' . wiki . "'"
+    return 0
+  endif
+  return 0
+endfunction " }}}
+
 " vimwiki#base#follow_link
 function! vimwiki#base#follow_link(split, ...) "{{{ Parse link at cursor and pass 
   " to VimwikiLinkHandler, or failing that, the default open_link handler
@@ -1251,7 +1279,9 @@ function! vimwiki#base#follow_link(split, ...) "{{{ Parse link at cursor and pas
 
     if lnk != ""
       if !VimwikiLinkHandler(cmd, lnk)
-        call vimwiki#base#open_link(cmd, lnk)
+        if !vimwiki#base#open_named_link(cmd, lnk)
+          call vimwiki#base#open_link(cmd, lnk)
+        endif
       endif
       return
     endif
