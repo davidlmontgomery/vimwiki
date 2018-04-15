@@ -933,16 +933,28 @@ endf "}}}
 
 " s:print_wiki_list
 function! s:print_wiki_list() "{{{
+  " find longest name
+  let max_name_len = 0
+  for wiki in g:vimwiki_list
+    if has_key(wiki, 'name')
+      if len(wiki.name) > max_name_len
+        let max_name_len = len(wiki.name)
+      endif
+    endif
+  endfor
+
   let idx = 0
   while idx < len(g:vimwiki_list)
     if idx == g:vimwiki_current_idx
-      let sep = ' * '
+      let sep = '*'
       echohl PmenuSel
     else
-      let sep = '   '
+      let sep = ' '
       echohl None
     endif
-    echo (idx + 1).sep.VimwikiGet('path', idx)
+    let name = get(g:vimwiki_list[idx], 'name', '')
+    let path = VimwikiGet('path', idx)
+    echo printf('%2d %s %-*s %s', idx+1, sep, max_name_len, name, path)
     let idx += 1
   endwhile
   echohl None
