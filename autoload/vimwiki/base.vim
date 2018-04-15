@@ -943,6 +943,36 @@ function! s:print_wiki_list() "{{{
     endif
   endfor
 
+  " find common path prefix
+  if len(g:vimwiki_list) == 1
+    let common = ''
+  else
+    let minp = g:vimwiki_list[0].path
+    let maxp = g:vimwiki_list[0].path
+    let idx = 1
+    while idx < len(g:vimwiki_list)
+      let path = g:vimwiki_list[idx].path
+      if path < minp
+        let minp = path
+      elseif path > maxp
+        let maxp = path
+      endif
+      let idx += 1
+    endwhile
+    let idx = 0
+    let same = 1
+    while same == 1 && idx < len(minp)
+      if minp[idx] != maxp[idx]
+        let same = 0
+      else
+        let idx = idx + 1
+      endif
+    endwhile
+    let common = strpart(minp, 0, idx)
+    echo 'Wikis under '.common.':'
+  endif
+
+  " print list
   let idx = 0
   while idx < len(g:vimwiki_list)
     if idx == g:vimwiki_current_idx
@@ -953,7 +983,7 @@ function! s:print_wiki_list() "{{{
       echohl None
     endif
     let name = get(g:vimwiki_list[idx], 'name', '')
-    let path = VimwikiGet('path', idx)
+    let path = substitute(VimwikiGet('path', idx), common, '', 'g')
     echo printf('%2d %s %-*s %s', idx+1, sep, max_name_len, name, path)
     let idx += 1
   endwhile
