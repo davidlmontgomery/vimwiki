@@ -14,6 +14,13 @@ let s:old_cpo = &cpo
 set cpo&vim
 
 
+if exists('g:vimwiki_autowriteall')
+  let s:vimwiki_autowriteall_saved = g:vimwiki_autowriteall
+else
+  let s:vimwiki_autowriteall_saved = 1
+endif
+
+
 " this is called when the cursor leaves the buffer
 function! s:setup_buffer_leave()
   " don't do anything if it's not managed by Vimwiki (that is, when it's not in
@@ -48,6 +55,10 @@ function! s:create_temporary_wiki()
         \ }
 
   call vimwiki#vars#add_temporary_wiki(new_temp_wiki_settings)
+
+  " Update the wiki number of the current buffer, because it may have changed when adding this
+  " temporary wiki.
+  call vimwiki#vars#set_bufferlocal('wiki_nr', vimwiki#base#find_wiki(expand('%:p')))
 endfunction
 
 
@@ -255,14 +266,14 @@ command! -count=1 VimwikiTabIndex
 command! -count=1 VimwikiDiaryIndex
       \ call vimwiki#diary#goto_diary_index(v:count1)
 command! -count=1 VimwikiMakeDiaryNote
-      \ call vimwiki#diary#make_note(v:count1)
+      \ call vimwiki#diary#make_note(v:count)
 command! -count=1 VimwikiTabMakeDiaryNote
-      \ call vimwiki#diary#make_note(v:count1, 1)
+      \ call vimwiki#diary#make_note(v:count, 1)
 command! -count=1 VimwikiMakeYesterdayDiaryNote
-      \ call vimwiki#diary#make_note(v:count1, 0,
+      \ call vimwiki#diary#make_note(v:count, 0,
       \ vimwiki#diary#diary_date_link(localtime() - 60*60*24))
 command! -count=1 VimwikiMakeTomorrowDiaryNote
-      \ call vimwiki#diary#make_note(v:count1, 0,
+      \ call vimwiki#diary#make_note(v:count, 0,
       \ vimwiki#diary#diary_date_link(localtime() + 60*60*24))
 
 command! VimwikiDiaryGenerateLinks
@@ -330,7 +341,7 @@ function! s:build_menu(topmenu)
     execute 'menu '.a:topmenu.'.Open\ index.'.norm_path.
           \ ' :call vimwiki#base#goto_index('.idx.')<CR>'
     execute 'menu '.a:topmenu.'.Open/Create\ diary\ note.'.norm_path.
-          \ ' :call vimwiki#diary#make_note('.idx.')<CR>'
+          \ ' :call vimwiki#diary#make_note('.(idx+1).')<CR>'
   endfor
 endfunction
 

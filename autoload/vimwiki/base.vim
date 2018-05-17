@@ -82,18 +82,22 @@ endfunction
 " to any registered wiki.
 " The path can be the full path or just the directory of the file
 function! vimwiki#base#find_wiki(path)
+  let bestmatch = -1
+  let bestlen = 0
   let path = vimwiki#path#path_norm(vimwiki#path#chomp_slash(a:path))
   for idx in range(vimwiki#vars#number_of_wikis())
     let idx_path = expand(vimwiki#vars#get_wikilocal('path', idx))
     let idx_path = vimwiki#path#path_norm(vimwiki#path#chomp_slash(idx_path))
-    if vimwiki#path#is_equal(vimwiki#path#path_common_pfx(idx_path, path), idx_path)
-      return idx
+    let common_pfx = vimwiki#path#path_common_pfx(idx_path, path)
+    if vimwiki#path#is_equal(common_pfx, idx_path)
+      if len(common_pfx) > bestlen
+        let bestlen = len(common_pfx)
+        let bestmatch = idx
+      endif
     endif
-    let idx += 1
   endfor
 
-  " an orphan page has been detected
-  return -1
+  return bestmatch
 endfunction
 
 
@@ -1816,7 +1820,11 @@ function! vimwiki#base#table_of_contents(create)
   for [lvl, link, desc] in complete_header_infos
     let esc_link = substitute(link, "'", "''", 'g')
     let esc_desc = substitute(desc, "'", "''", 'g')
-    let link = s:safesubstitute(vimwiki#vars#get_global('WikiLinkTemplate2'), '__LinkUrl__',
+    let link_tpl = vimwiki#vars#get_global('WikiLinkTemplate2')
+    if vimwiki#vars#get_wikilocal('syntax') == 'markdown'
+      let link_tpl = vimwiki#vars#get_syntaxlocal('Weblink1Template')
+    endif
+    let link = s:safesubstitute(link_tpl, '__LinkUrl__',
           \ '#'.esc_link, '')
     let link = s:safesubstitute(link, '__LinkDescription__', esc_desc, '')
     call add(lines, startindent.repeat(indentstring, lvl-1).bullet.link)
